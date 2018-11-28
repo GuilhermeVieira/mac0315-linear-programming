@@ -1,5 +1,11 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import linprog
+
+def plotSum(x, y):
+    fig, ax = plt.subplots()
+    plt.bar(x, y)
+    plt.show()
 
 def printConstraint(c, b, n):
     for i in range(0, 2*n, 2):
@@ -16,6 +22,10 @@ def printConstraints(A_eq, b_eq, n):
     printConstraint(A_eq[1], b_eq[1], n)
 
     return
+
+def findAccelerations(x):
+    a = []
+    return a
 
 def main():
     t = 10
@@ -42,6 +52,26 @@ def main():
         A_eq[1].append(1)
         A_eq[1].append(-1)
 
+    # Constructing bound variables
+    bounds = ()
+    for i in range (2*n):
+        bounds = bounds + ((0, None), )
+
     printConstraints(A_eq, b_eq, n)
+    print(bounds)
+    res = linprog(c, A_eq= A_eq, b_eq=b_eq, bounds=bounds, options={"disp": True})
+
+    print(res.x)
+
+    # Adding the values of a0^+ and a0^-
+    x = [0, 0]
+    for i in range(2*n):
+        x.append(res.x[i])
+
+    a = findAccelerations(x, 2*n + 2)
+    y = np.arange(0, 2*n+1, time_increment)
+    print(x)
+    print(y)
+    #plotSum()
 
 main()

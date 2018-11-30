@@ -1,11 +1,28 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 from scipy.optimize import linprog
 
-def plotSum(x, y):
-    fig, ax = plt.subplots()
-    plt.bar(x, y)
+def plotDiscretization(A, dx, title, xlabel, ylabel):
+    x = 0
+    # Create figure and axes
+    fig, ax = plt.subplots(1)
+    plt.ylim([-dx, dx])
+    plt.xlim([0,10])
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    for i in range(len(A)):
+        if A[i] >= 0:
+            rect = Rectangle((x,0), dx, A[i],linewidth=1,edgecolor='r',facecolor='none')
+        # Add the patch to the Axes
+        else:
+            rect = Rectangle((x,A[i]), dx, -A[i],linewidth=5,edgecolor='r',facecolor='none')
+        ax.add_patch(rect)
+        x = x + dx
     plt.show()
+
+    return
 
 def printConstraint(c, b, n):
     for i in range(0, 2*n, 2):
@@ -23,9 +40,11 @@ def printConstraints(A_eq, b_eq, n):
 
     return
 
-def findAccelerations(x):
-    a = []
-    return a
+def findAccelerations(x, n):
+    A = []
+    for i in range(0,n, 2):
+        A.append(x[i] - x[i+1]) # xi = xi^+ - xi^-
+    return A
 
 def main():
     t = 10
@@ -60,18 +79,15 @@ def main():
     printConstraints(A_eq, b_eq, n)
     print(bounds)
     res = linprog(c, A_eq= A_eq, b_eq=b_eq, bounds=bounds, options={"disp": True})
-
-    print(res.x)
-
     # Adding the values of a0^+ and a0^-
     x = [0, 0]
     for i in range(2*n):
         x.append(res.x[i])
 
-    a = findAccelerations(x, 2*n + 2)
-    y = np.arange(0, 2*n+1, time_increment)
-    print(x)
-    print(y)
-    #plotSum()
+    print(res)
 
+    A = findAccelerations(x, 2*n + 2)
+    print(A)
+
+    plotDiscretization(A, time_increment, "Acceleration Graph", "Time", "Acceleration")
 main()

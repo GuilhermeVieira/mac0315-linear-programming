@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from scipy.optimize import linprog
+from simplex import simplex
 
 def plotDiscretization(A, dx, title, xlabel, ylabel):
     x = 0
@@ -76,18 +77,47 @@ def main():
     for i in range (2*n):
         bounds = bounds + ((0, None), )
 
+    # Printing the problem
     printConstraints(A_eq, b_eq, n)
     print(bounds)
     res = linprog(c, A_eq= A_eq, b_eq=b_eq, bounds=bounds, options={"disp": True})
+
     # Adding the values of a0^+ and a0^-
+    '''
     x = [0, 0]
     for i in range(2*n):
         x.append(res.x[i])
 
+    # Printing results
+    print("Simplex result")
+    '''
     print(res)
 
+    '''
     A = findAccelerations(x, 2*n + 2)
+    print("Accelerations")
     print(A)
-
+    '''
+    # Second simplex
+    sol = simplex(c, A_eq, b_eq)
+    print(sol)
+    '''
     plotDiscretization(A, time_increment, "Acceleration Graph", "Time", "Acceleration")
+
+    A_sum = []; A_sum.append(0)
+    V = []; V.append(0)
+    for i in range(1, len(A)):
+        A_sum.append(A[i] + A_sum[i-1])
+        V.append(A_sum[i])
+
+    plotDiscretization(V, time_increment, "Velocity Graph", "Time", "Velocity")
+
+    V_sum = []; V_sum.append(0)
+    POS = []; POS.append(0)
+    for i in range(1, len(V)):
+        V_sum.append(V[i] + V_sum[i-1])
+        POS.append(V_sum[i])
+        plotDiscretization(POS, time_increment, "Position Graph", "Time", "Position")
+
+    '''
 main()
